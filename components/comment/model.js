@@ -14,7 +14,7 @@ const comment = new mongoose.Schema({
 
   replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'comment' }],
 
-});
+}, { usePushEach: true });
 
 comment.plugin(genericPlugin);
 

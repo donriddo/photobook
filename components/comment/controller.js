@@ -11,6 +11,24 @@ module.exports = {
       return res.status(400).json(err);
     });
   },
+  reply: function (req, res) {
+    Comment.findById(req.body.comment).where('isDeleted', false)
+    .populate('user').then(async comment => {
+      if (!comment) return false;
+      const commentReply = new Comment({ text: req.body.text, user: req.user._id })
+      await commentReply.save();
+      comment.replies.push(commentReply);
+      return comment.save();
+    })
+    .then(comment => {
+      if (!comment) return res.status(404).json({ message: 'Comment not found' });
+      return res.status(200).json(comment);
+    })
+    .catch(err => {
+      console.log(err);
+      return res.status(404).json(err);
+    });
+  },
   read: function (req, res) {
     Comment.findById(req.params.id).where('isDeleted', false)
     .populate('user').populate('replies').then(comment => {
