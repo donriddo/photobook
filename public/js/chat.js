@@ -72,11 +72,43 @@ $(() => {
                 <div class="picturePost">
                     <div class="picTitle">${user.email}</div>
                     <p>${comment.text}</p>
+                    <button onclick="setCommentThread(\'${comment._id}\')" class="photobutton">Reply</button>
                 </div>
             `);
         });
         $('#threadPane').show();
     }
+
+    window.setCommentThread = async (id) => {
+        currentCommentId = id;
+        let comment = await $.ajax({
+            url: `http://localhost:37337/api/comment/${currentCommentId}`,
+            beforeSend: function (xhr) {
+                const userToken = localStorage.getItem('userToken');
+                xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
+            }
+        });
+        $('#threadDisplay').empty();
+        comment.replies.forEach(async reply => {
+            console.log(reply)
+            const user = await $.ajax({
+                url: `http://localhost:37337/api/user/${reply.user}`,
+                beforeSend: function (xhr) {
+                    const userToken = localStorage.getItem('userToken');
+                    xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
+                }
+            });
+            $('#threadDisplay').append(`
+                <div class="picturePost">
+                    <div class="picTitle">${user.email}</div>
+                    <p>${reply.text}</p>
+                    <button onclick="setCommentThread(\'${reply._id}\')" class="photobutton">Reply</button>
+                </div>
+            `);
+        });
+        $('#threadPane').show();
+    }
+
     function newLogin(data) {
         console.log('A new user logged in: ', data)
     }
