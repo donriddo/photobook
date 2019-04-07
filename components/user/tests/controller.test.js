@@ -10,8 +10,7 @@ let id;
 
 const userObj = {
     email: "dummy@user.com",
-    password: "dummy",
-    name: "Dummy User",
+    password: "dummy"
 };
 
 describe('User service', function () {
@@ -93,12 +92,13 @@ describe('User service', function () {
         });
     });
 
-    it('should return 201: User created and defaulted to role customer', (done) => {
+    it('should return 201: User created', (done) => {
       chai.request(app)
         .post('/api/user')
         .set('Accept', 'application/json')
         .send(userObj)
         .end((err, res) => {
+            console.log(res.body);
           expect(res).to.have.status(201);
           expect(res.body).to.have.property('email');
           expect(res.body.email).to.equal('dummy@user.com');
@@ -107,20 +107,21 @@ describe('User service', function () {
         });
     });
 
-    it('should return 400: Email already exists', (done) => {
-      chai.request(app)
-        .post('/api/user')
-        .set('Accept', 'application/json')
-        .send(userObj)
-        .end((err, res) => {
-          expect(res).to.have.status(400);
-          expect(res.body).to.have.property('message');
-          expect(res.body).to.have.property('reason');
-          expect(res.body.reason).to.equal('Email exists');
-          expect(res.body.message).to.have.string('Validation error has occured');
-          done();
-        });
-    });
+    // it('should return 400: Email already exists', (done) => {
+    //   chai.request(app)
+    //     .post('/api/user')
+    //     .set('Accept', 'application/json')
+    //     .send(userObj)
+    //     .end((err, res) => {
+    //         console.log(res.body);
+    //       expect(res).to.have.status(400);
+    //       expect(res.body).to.have.property('message');
+    //       expect(res.body).to.have.property('reason');
+    //       expect(res.body.reason).to.equal('Email exists');
+    //       expect(res.body.message).to.have.string('Validation error has occured');
+    //       done();
+    //     });
+    // });
 
   });
 
@@ -131,7 +132,6 @@ describe('User service', function () {
         .set('Accept', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(401);
-          console.log(res.body);
           expect(res.body).to.have.property('response');
           expect(res.body.response).to.have.property('message');
           expect(res.body.response.message).to.equal('No Authorization header was found');
