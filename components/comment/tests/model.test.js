@@ -1,63 +1,56 @@
 const expect = require('chai').expect;
 const _ = require('lodash');
 
-const User = require('../model');
+const User = require('../../user/model');
+const Comment = require('../model');
 
 const userObj = {
     email: "dummy@user.com",
     password: "dummy",
     name: "Dummy User",
 };
+
+const commentObj = {
+    text: 'dummy text'
+}
  
-describe('user', function() {
+describe('comment', function() {
     it('should reject with error if body is empty', function(done) {
-        var user = new User();
+        var comment = new Comment();
  
-        user.validate(function(err) {
-            expect(err.errors.email).to.exist;
-            expect(err.errors.password).to.exist;
-            expect(err.errors.name).to.exist;
+        comment.validate(function(err) {
+            expect(err.errors.text).to.exist;
+            expect(err.errors.user).to.exist;
             done();
         });
     });
 
-    it('should reject with error if email is empty', function(done) {
-        var user = new User(_.omit(userObj, 'email'));
+    it('should reject with error if user is empty', function(done) {
+        var comment = new Comment(commentObj);
  
-        user.validate(function(err) {
-            expect(err.errors.email).to.exist;
-            expect(err.errors.password).to.not.exist;
-            expect(err.errors.name).to.not.exist;
+        comment.validate(function(err) {
+            expect(err.errors.text).to.not.exist;
+            expect(err.errors.user).to.exist;
             done();
         });
     });
 
-    it('should reject with error if password is empty', function(done) {
-        var user = new User(_.omit(userObj, 'password'));
+    it('should reject with error if text is empty', function(done) {
+        const user = new User(userObj);
+        var comment = new Comment(_.omit(Object.assign(commentObj, { user: user._id }), 'text'));
  
-        user.validate(function(err) {
-            expect(err.errors.email).to.not.exist;
-            expect(err.errors.password).to.exist;
-            expect(err.errors.name).to.not.exist;
+        comment.validate(function(err) {
+            expect(err.errors.user).to.not.exist;
+            expect(err.errors.text).to.exist;
             done();
         });
     });
 
-    it('should reject with error if name is empty', function(done) {
-        var user = new User(_.omit(userObj, 'name'));
+    it('should validate comment successfully', function(done) {
+        const user = new User(userObj);
+        var comment = new Comment(Object.assign(commentObj, { user: user._id }));
  
-        user.validate(function(err) {
-            expect(err.errors.email).to.not.exist;
-            expect(err.errors.password).to.not.exist;
-            expect(err.errors.name).to.exist;
-            done();
-        });
-    });
-
-    it('should validate user successfully', function(done) {
-        var user = new User(userObj);
- 
-        user.validate(function(err) {
+        comment.validate(function(err) {
             expect(err).to.be.a('null')
             done();
         });

@@ -16,7 +16,6 @@ describe('user', function() {
         user.validate(function(err) {
             expect(err.errors.email).to.exist;
             expect(err.errors.password).to.exist;
-            expect(err.errors.name).to.exist;
             done();
         });
     });
@@ -27,7 +26,6 @@ describe('user', function() {
         user.validate(function(err) {
             expect(err.errors.email).to.exist;
             expect(err.errors.password).to.not.exist;
-            expect(err.errors.name).to.not.exist;
             done();
         });
     });
@@ -38,18 +36,6 @@ describe('user', function() {
         user.validate(function(err) {
             expect(err.errors.email).to.not.exist;
             expect(err.errors.password).to.exist;
-            expect(err.errors.name).to.not.exist;
-            done();
-        });
-    });
-
-    it('should reject with error if name is empty', function(done) {
-        var user = new User(_.omit(userObj, 'name'));
- 
-        user.validate(function(err) {
-            expect(err.errors.email).to.not.exist;
-            expect(err.errors.password).to.not.exist;
-            expect(err.errors.name).to.exist;
             done();
         });
     });
