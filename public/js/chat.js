@@ -229,11 +229,26 @@ $(() => {
         fetchPictures();
     }
 
+    async function commentPicture(picture) {
+        let loggedInUser = localStorage.getItem('userObject');
+        if (loggedInUser) loggedInUser = JSON.parse(loggedInUser);
+        let user = await $.ajax({
+            url: `http://localhost:37337/api/user/${picture.commenter}`,
+            beforeSend: function (xhr) {
+                const userToken = localStorage.getItem('userToken');
+                xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
+            }
+        });
+        console.log(`${user.email} just commented a picture`, picture.user);
+        if (loggedInUser._id === picture.user._id) alert(`${user.email} just commented on your picture`);
+        fetchPictures();
+    }
+
     var socket = io();
     socket.on('newConn', console.log);
     socket.on('join', newLogin);
     socket.on('newPicture', reloadPictures);
-    socket.on('newPictureComment', reloadPictures);
+    socket.on('newPictureComment', commentPicture);
     socket.emit('login', 'Random user');
 
     fetchPictures();
