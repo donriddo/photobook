@@ -21,7 +21,7 @@ module.exports = {
   },
   comment: function (req, res) {
     Picture.findById(req.body.picture).where('isDeleted', false)
-    .populate('user').then(async picture => {
+    .populate({ path: 'user', match: { isDeleted: false }}).then(async picture => {
       if (!picture) return false;
       const comment = new Comment({ picture: picture._id, text: req.body.text, user: req.user._id })
       await comment.save();
@@ -39,7 +39,7 @@ module.exports = {
   },
   read: function (req, res) {
     Picture.findById(req.params.id).where('isDeleted', false)
-    .populate('user').populate('comments').then(picture => {
+    .populate({ path: 'user', match: { isDeleted: false }}).populate({ path: 'comments', match: { isDeleted: false }}).then(picture => {
       if (!picture) return res.status(404).json({ message: 'Picture not found' });
       return res.status(200).json(picture);
     }).catch(err => {
@@ -48,7 +48,9 @@ module.exports = {
     });
   },
   list: function (req, res) {
-    Picture.find({ isDeleted: false }).populate('user').populate('comments').then(pictures => {
+    Picture.find({ isDeleted: false })
+    .populate({ path: 'user', match: { isDeleted: false }})
+    .populate({ path: 'comments', match: { isDeleted: false }}).then(pictures => {
       return res.status(200).json(pictures);
     }).catch(err => {
       console.log(err);

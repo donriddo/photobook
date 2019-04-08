@@ -13,7 +13,7 @@ module.exports = {
   },
   reply: function (req, res) {
     Comment.findById(req.body.comment).where('isDeleted', false)
-    .populate('user').then(async comment => {
+    .populate({ path: 'user', match: { isDeleted: false }}).then(async comment => {
       if (!comment) return false;
       const commentReply = new Comment({ text: req.body.text, user: req.user._id })
       await commentReply.save();
@@ -31,7 +31,7 @@ module.exports = {
   },
   read: function (req, res) {
     Comment.findById(req.params.id).where('isDeleted', false)
-    .populate('user').populate('replies').then(comment => {
+    .populate({ path: 'user', match: { isDeleted: false }}).populate({ path: 'replies', match: { isDeleted: false }}).then(comment => {
       if (!comment) return res.status(404).json({ message: 'Comment not found' });
       return res.status(200).json(comment);
     }).catch(err => {
@@ -41,7 +41,7 @@ module.exports = {
   },
   list: function (req, res) {
     Comment.find({ isDeleted: false })
-    .populate('user').populate('replies').then(comments => {
+    .populate({ path: 'user', match: { isDeleted: false }}).populate({ path: 'replies', match: { isDeleted: false }}).then(comments => {
       return res.status(200).json(comments);
     }).catch(err => {
       console.log(err);
