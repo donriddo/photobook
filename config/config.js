@@ -14,7 +14,13 @@ if (process.env.NODE_ENV === 'production') {
   })
   settings = require('./env/production');
 } else {
-  settings = require('./env/development');
+  try {
+    settings = require('./env/development');
+  } catch (error) {
+    console.log(error.message);
+    console.log('Using development.default.js as the default config file');
+    settings = require('./env/development.default');
+  }
 }
 
 module.exports = {
