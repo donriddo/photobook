@@ -2,7 +2,7 @@
 
 - Steps to run application
 1. Run `yarn install` to install all dependencies  
-2. Create your deveopment environment variables `` 
+2. Create your deveopment environment variables. Add `config/env/development.js` with the following snippet 
 ```javascript
     module.exports = {
         DB_URI: <YOUR_DB_URI>,
