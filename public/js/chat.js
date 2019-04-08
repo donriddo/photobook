@@ -62,6 +62,8 @@ $(() => {
     window.setPictureThread = async (id) => {
         currentPictureId = id;
         currentThreadUrl = 'http://localhost:37337/api/picture/comment/';
+        let loggedInUser = localStorage.getItem('userObject');
+        if (loggedInUser) loggedInUser = JSON.parse(loggedInUser);
         let picture = await $.ajax({
             url: `http://localhost:37337/api/picture/${currentPictureId}`,
             beforeSend: function (xhr) {
@@ -79,14 +81,22 @@ $(() => {
                     xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
                 }
             });
-            $('#threadDisplay').append(`
+            let commentHtml = `
                 <div class="picturePost">
                     <div class="picTitle">${user.email}</div>
                     <p>${comment.text}</p>
                     <div class="picTitle">${comment.replies.length} replies</div>
                     <button onclick="setCommentThread(\'${comment._id}\')" class="photobutton">Reply or View Replies</button>
+            `;
+            if (loggedInUser._id === comment.user) {
+                commentHtml += `
+                    <button onclick="deleteComment(\'${comment._id}\', 'picture')" class="photobutton" style="background-color:red;color:white;">Delete Comment</button>
                 </div>
-            `);
+                `;
+            } else {
+                commentHtml += '</div>';
+            }
+            $('#threadDisplay').append(commentHtml);
         });
         $('#threadPane').show();
     }
@@ -94,6 +104,8 @@ $(() => {
     window.setCommentThread = async (id) => {
         currentCommentId = id;
         currentThreadUrl = 'http://localhost:37337/api/comment/reply';
+        let loggedInUser = localStorage.getItem('userObject');
+        if (loggedInUser) loggedInUser = JSON.parse(loggedInUser);
         let comment = await $.ajax({
             url: `http://localhost:37337/api/comment/${currentCommentId}`,
             beforeSend: function (xhr) {
@@ -102,6 +114,7 @@ $(() => {
             }
         });
         $('#threadDisplay').empty();
+        console.log({comment})
         comment.replies.forEach(async reply => {
             console.log(reply)
             const user = await $.ajax({
@@ -111,14 +124,22 @@ $(() => {
                     xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
                 }
             });
-            $('#threadDisplay').append(`
+            let replyHtml = `
                 <div class="picturePost">
                     <div class="picTitle">${user.email}</div>
                     <p>${reply.text}</p>
                     <div class="picTitle">${reply.replies.length} replies</div>
                     <button onclick="setCommentThread(\'${reply._id}\')" class="photobutton">Reply or view replies</button>
+            `;
+            if (loggedInUser._id === comment.user) {
+                replyHtml += `
+                    <button onclick="deleteComment(\'${comment._id}\', 'comment')" class="photobutton" style="background-color:red;color:white;">Delete Reply</button>
                 </div>
-            `);
+                `;
+            } else {
+                replyHtml += '</div>';
+            }
+            $('#threadDisplay').append(replyHtml);
         });
         $('#threadPane').show();
     }
@@ -131,21 +152,67 @@ $(() => {
         $.get('http://localhost:37337/api/picture')
         .done((data) => {
             console.log('all pictures: ', {data});
+            let user = localStorage.getItem('userObject');
+            if (user) user = JSON.parse(user);
             $('#pictureDisplay').empty();
             data.forEach(picture => {
-                $('#pictureDisplay').append(`
-                    <div class="picturePost">
-                        <div class="picTitle">${picture.user.email}</div>
-                        <image class="picImage" src=${picture.url} />
-                        <div class="picTitle">${picture.comments.length} comments</div>
-                        <button onclick="setPictureThread(\'${picture._id}\')" class="photobutton">Comment or view comments</button>
+                let picHtml = `
+                <div class="picturePost">
+                    <div class="picTitle">${picture.user.email}</div>
+                    <image class="picImage" src=${picture.url} />
+                    <div class="picTitle">${picture.comments.length} comments</div>
+                    <button onclick="setPictureThread(\'${picture._id}\')" class="photobutton">Comment or view comments</button>
+                `;
+                if (user._id === picture.user._id) {
+                    picHtml += `
+                        <button onclick="deletePicture(\'${picture._id}\')" class="photobutton" style="background-color:red;color:white;">Delete Picture</button>
                     </div>
-                `);
+                    `;
+                } else {
+                    picHtml += '</div>';
+                }
+                $('#pictureDisplay').append(picHtml);
             });
         })
         .fail((err) => {
             console.log({err})
             // $('#errorBox').html(err.responseJSON.message);
+        });
+    }
+
+    window.deletePicture = (id) => {
+        $.ajax({
+            url: `http://localhost:37337/api/picture/${id}`,
+            type: 'DELETE',
+            beforeSend: function (xhr) {
+                const userToken = localStorage.getItem('userToken');
+                xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
+            }
+        })
+        .done((data) => {
+            console.log({data});
+            fetchPictures();
+        })
+        .fail((err) => {
+            console.log({err});
+        });
+    }
+
+    window.deleteComment = (id, toReload) => {
+        $.ajax({
+            url: `http://localhost:37337/api/comment/${id}`,
+            type: 'DELETE',
+            beforeSend: function (xhr) {
+                const userToken = localStorage.getItem('userToken');
+                xhr.setRequestHeader('Authorization', "Bearer" + " " + userToken);
+            }
+        })
+        .done((data) => {
+            console.log({data});
+            toReload === 'picture' ? setPictureThread(currentPictureId) : setCommentThread(currentCommentId);
+        })
+        .fail((err) => {
+            console.log({err});
         });
     }
 
