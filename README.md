@@ -10,7 +10,7 @@
         TOKEN_EXPIRY: <YOUR_PREFERRED_TOKEN_EXPIRY_TIME>
     };
 ```
-`You can skip this step and let the application use config/env/development.default.js`
+`You can skip this step and let the application use config/env/development.default.js`  
 3. Run `yarn test` to run the tests (Make sure you have MongoDB running)
 4. Run `yarn start` to launch the app (Make sure you have MongoDB running)  
 5. View `http://localhost:37337` on your browser to use the app  
