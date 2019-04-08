@@ -131,7 +131,7 @@ $(() => {
                     <div class="picTitle">${reply.replies.length} replies</div>
                     <button onclick="setCommentThread(\'${reply._id}\')" class="photobutton">Reply or view replies</button>
             `;
-            if (loggedInUser._id === comment.user) {
+            if (loggedInUser._id === reply.user) {
                 replyHtml += `
                     <button onclick="deleteComment(\'${comment._id}\', 'comment')" class="photobutton" style="background-color:red;color:white;">Delete Reply</button>
                 </div>
