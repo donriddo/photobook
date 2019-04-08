@@ -30,6 +30,7 @@ module.exports = {
     })
     .then(picture => {
       if (!picture) return res.status(404).json({ message: 'Picture not found' });
+      io.emit('newPictureComment', picture);
       return res.status(200).json(picture);
     })
     .catch(err => {

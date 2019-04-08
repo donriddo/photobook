@@ -233,6 +233,7 @@ $(() => {
     socket.on('newConn', console.log);
     socket.on('join', newLogin);
     socket.on('newPicture', reloadPictures);
+    socket.on('newPictureComment', reloadPictures);
     socket.emit('login', 'Random user');
 
     fetchPictures();
